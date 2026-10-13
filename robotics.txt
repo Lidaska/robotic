@@ -1,0 +1,437 @@
+# ==========================================
+# Prac 1: dpll resolution small propositional knowledge base
+# ==========================================
+def simplify(clauses, literal):
+    new_clauses = []
+    for clause in clauses:
+        if literal in clause:
+            continue
+        elif -literal in clause:
+            new_clause = clause.copy()
+            new_clause.remove(-literal)
+            if len(new_clause) == 0:
+                return None
+            new_clauses.append(new_clause)
+        else:
+            new_clauses.append(clause)
+    return new_clauses
+
+def find_unit_clause(clauses):
+    for clause in clauses:
+        if len(clause) == 1:
+            return clause[0]
+    return None
+
+def find_pure_literal(clauses):
+    literals = set()
+    for clause in clauses:
+        for literal in clause:
+            literals.add(literal)
+    for literal in literals:
+        if -literal not in literals:
+            return literal
+    return None
+
+def dpll(clauses):
+    if not clauses:
+        return True
+    if [] in clauses:
+        return False
+    unit = find_unit_clause(clauses)
+    if unit is not None:
+        result = simplify(clauses, unit)
+        if result is None:
+            return False
+        return dpll(result)
+    pure = find_pure_literal(clauses)
+    if pure is not None:
+        result = simplify(clauses, pure)
+        if result is None:
+            return False
+        return dpll(result)
+    literal = clauses[0][0]
+    result = simplify(clauses, literal)
+    if result is not None:
+        if dpll(result):
+            return True
+    result = simplify(clauses, -literal)
+    if result is not None:
+        if dpll(result):
+            return True
+    return False
+
+clauses = [
+    [1, 2],
+    [-1, 3],
+    [-2, 3],
+    [3]
+]
+print("knowledge based (cnf):")
+print(clauses)
+if dpll(clauses):
+    print("\nresult:satisfiable")
+else:
+    print("\nresult:unsatisfiable")
+
+
+# ==========================================
+# Prac 2: prolog rules family relationship knowledge base
+# ==========================================
+male = {"john", "peter", "david", "robert", "james"}
+female = {"mary", "linda", "susan", "emily", "anna"}
+
+parents = {
+    "peter": ["john", "mary"],
+    "linda": ["john", "mary"],
+    "david": ["peter", "susan"],
+    "emily": ["peter", "susan"],
+    "james": ["linda", "robert"],
+    "anna": ["linda", "robert"]
+}
+
+def father(child):
+    if child in parents:
+        return [p for p in parents[child] if p in male]
+    return []
+
+def mother(child):
+    if child in parents:
+        return [p for p in parents[child] if p in female]
+    return []
+
+def siblings(person):
+    result = []
+    if person not in parents:
+        return result
+    person_parents = set(parents[person])
+    for child, pr in parents.items():
+        if child != person and set(pr) == person_parents:
+            result.append(child)
+    return result
+
+def brother(person):
+    return [s for s in siblings(person) if s in male]
+
+def sister(person):
+    return [s for s in siblings(person) if s in female]
+
+def grandparents(person):
+    result = []
+    if person in parents:
+        for p in parents[person]:
+            if p in parents:
+                result.extend(parents[p])
+    return list(set(result))
+
+def grandfathers(person):
+    return [g for g in grandparents(person) if g in male]
+
+def grandmothers(person):
+    return [g for g in grandparents(person) if g in female]
+
+def cousins(person):
+    result = []
+    if person not in parents:
+        return result
+    person_parents = parents[person]
+    for child, child_parents in parents.items():
+        if child == person:
+            continue
+        for p1 in person_parents:
+            for p2 in child_parents:
+                if p1 != p2 and set(parents.get(p1, [])) == set(parents.get(p2, [])):
+                    result.append(child)
+    return list(set(result))
+
+print("Father of Peter:", father("peter"))
+print("Mother of Peter:", mother("peter"))
+print()
+print("Grandparents of David:", grandparents("david"))
+print("Grandmothers of James:", grandmothers("james"))
+print()
+print("Siblings of David:", siblings("david"))
+print("Brother of Anna:", brother("anna"))
+print("Sister of David:", sister("david"))
+print()
+print("Cousins of David:", cousins("david"))
+
+
+# ==========================================
+# Prc 4: forward chaining inference python
+# ==========================================
+facts = {"A", "B"}
+rules = [
+    (["A", "B"], "C"),
+    (["C"], "D"),
+    (["D"], "E"),
+    (["E"], "F")
+]
+print("intitial facts:", facts)
+changed = True
+while changed:
+    changed = False
+    for condition, conclusion in rules:
+        if all(item in facts for item in condition):
+            if conclusion not in facts:
+                print(f"interred: {conclusion}")
+                facts.add(conclusion)
+                changed = True
+print("final facts:")
+print(facts)
+
+
+# ==========================================
+# Prc 5: rule engine medical diagnosis expert system
+# ==========================================
+rules_medical = { 
+    "flu": ["fever", "cough", "body pain"],
+    "COVID-19": ["fever", "cough", "loss of smell"],
+    "malaria": ["fever", "chills", "sweating"],
+    "typhoid": ["fever", "headache", "weakness"],
+    "dengue": ["fever", "rash", "joint pain"]
+}
+print("enter symptoms seperate by commas:")
+user_input = input().lower()
+symptoms = [s.strip() for s in user_input.split(",")]
+print("symptoms entered", symptoms)
+diagnosis_found = False
+print("possible diagnosis:")
+for disease, required_symptoms in rules_medical.items():
+    if all(symptom in symptoms for symptom in required_symptoms):
+        print("yes", disease)
+        diagnosis_found = True
+if not diagnosis_found:
+    print("no matching disease found.")
+
+
+# ==========================================
+# Prc 6: query conceptnet api explore commonsense relations
+# ==========================================
+relations = {
+    "dog": [
+        ("IsA", "animal"),
+        ("CapableOf", "bark"),
+        ("CapableOf", "run"),
+        ("RelatedTo", "pet"),
+        ("HasA", "tail")
+    ],
+    "cat": [
+        ("IsA", "animal"),
+        ("CapableOf", "meow"),
+        ("RelatedTo", "pet"),
+        ("HasA", "tail")
+    ],
+    "car": [
+        ("IsA", "vehicle"),
+        ("UsedFor", "transportation"),
+        ("HasA", "wheel")
+    ],
+    "bird": [
+        ("IsA", "animal"),
+        ("CapableOf", "fly"),
+        ("HasA", "wings")
+    ]
+}
+concept = input("Enter a concept: ").lower()
+if concept in relations:
+    print("\nCommonsense Relations for:", concept)
+    print("-" * 40)
+    for relation, related_concept in relations[concept]:
+        print(concept, "→", relation, "→", related_concept)
+else:
+    print("Concept not found.")
+
+
+# ==========================================
+# Prc 7: case based reasoning system help desk scenario
+# ==========================================
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+cases = [
+    {"id": "c001", "problem": "wi-fi is not connecting to the internet", "solution": "restart the router and reconnect the computer to wi-fi."},
+    {"id": "c002", "problem": "printer is not printing documents", "solution": "check the printer connection and restart the printer."},
+    {"id": "c003", "problem": "computer is running very slowly", "solution": "delete temporary files and close unnecessary applications."},
+    {"id": "c004", "problem": "user forgets the login password", "solution": "reset the password using the password recovery option."},
+    {"id": "c005", "problem": "software application is not opening", "solution": "update or reinstall the software application."}
+]
+
+problem_texts = [case["problem"] for case in cases]
+vectorizer = TfidfVectorizer()
+case_vectors = vectorizer.fit_transform(problem_texts)
+new_problem = input("Enter your help-desk problem: ")
+new_vector = vectorizer.transform([new_problem])
+similarities = cosine_similarity(new_vector, case_vectors)
+best_index = similarities.argmax()
+best_case = cases[best_index]
+best_score = similarities[0][best_index]
+
+print("\n------ CBR RESULT -------")
+print("New problem:", new_problem)
+print("Similar case:", best_case["problem"])
+print("Previous problem:", best_case["problem"])
+print("Similarity score:", round(best_score, 2))
+print("Recommended solution:", best_case["solution"])
+if best_score >= 0.30:
+    print("\nThe previous solution can be considered.")
+else:
+    print("\nNo sufficiently similar case was found.")
+
+
+# ==========================================
+# Prc 8: knowledge graph rdflib visualise
+# ==========================================
+from rdflib import Graph, Namespace, RDF
+import networkx as nx
+import matplotlib.pyplot as plt
+
+graph = Graph()
+EX = Namespace("http://example.org/")
+graph.add((EX.sayali, EX.studies, EX.ComputerScience))
+graph.add((EX.sayali, EX.knows, EX.Python))
+graph.add((EX.sayali, EX.uses, EX.RDFLib))
+graph.add((EX.ComputerScience, EX.hasTopic, EX.AI))
+graph.add((EX.Python, EX.usedFor, EX.KnowledgeGraph))
+
+print("Knowledge Graph Triples:\n")
+for subject, predicate, object in graph:
+    print(subject, predicate, object)
+
+G = nx.DiGraph()
+for subject, predicate, object in graph:
+    s = str(subject).split("/")[-1]
+    p = str(predicate).split("/")[-1]
+    o = str(object).split("/")[-1]
+    G.add_node(s)
+    G.add_node(o)
+    G.add_edge(s, o, label=p)
+
+pos = nx.spring_layout(G, seed=42)
+nx.draw_networkx_nodes(G, pos, node_color="lightblue", node_size=2500)
+nx.draw_networkx_edges(G, pos, arrows=True, arrowstyle="->", arrowsize=20)
+nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold")
+edge_labels = nx.get_edge_attributes(G, "label")
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=9)
+plt.title("RDF Knowledge Graph")
+plt.axis("off")
+plt.show()
+
+
+# ==========================================
+# Prc 9: train transe embedding mini knowledge graph
+# ==========================================
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+triples = [
+    ("Mumbai", "located_in", "Maharashtra"),
+    ("Pune", "located_in", "Maharashtra"),
+    ("Nagpur", "located_in", "Maharashtra"),
+    ("Maharashtra", "part_of", "India"),
+    ("Mumbai", "famous_for", "Bollywood"),
+    ("Pune", "famous_for", "Education")
+]
+
+entities = sorted(set(h for h, r, t in triples).union(t for h, r, t in triples))
+relations = sorted(set(r for h, r, t in triples))
+entity_to_id = {entity: i for i, entity in enumerate(entities)}
+relation_to_id = {relation: i for i, relation in enumerate(relations)}
+
+encoded_triples = []
+for h, r, t in triples:
+    encoded_triples.append([entity_to_id[h], relation_to_id[r], entity_to_id[t]])
+triples_tensor = torch.tensor(encoded_triples, dtype=torch.long)
+
+class TransE(nn.Module):
+    def __init__(self, num_entities, num_relations, embedding_dim=20):
+        super().__init__()
+        self.entity_embeddings = nn.Embedding(num_entities, embedding_dim)
+        self.relation_embeddings = nn.Embedding(num_relations, embedding_dim)
+        nn.init.xavier_uniform_(self.entity_embeddings.weight)
+        nn.init.xavier_uniform_(self.relation_embeddings.weight)
+
+    def forward(self, h, r, t):
+        h_embedding = self.entity_embeddings(h)
+        r_embedding = self.relation_embeddings(r)
+        t_embedding = self.entity_embeddings(t)
+        score = torch.norm(h_embedding + r_embedding - t_embedding, p=2, dim=1)
+        return score
+
+model = TransE(num_entities=len(entities), num_relations=len(relations), embedding_dim=20)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+epochs = 1000
+margin = 1.0
+for epoch in range(epochs):
+    model.train()
+    optimizer.zero_grad()
+    h = triples_tensor[:, 0]
+    r = triples_tensor[:, 1]
+    t = triples_tensor[:, 2]
+    positive_score = model(h, r, t)
+    
+    negative_t = torch.randint(0, len(entities), (len(triples),))
+    mask = negative_t == t
+    while mask.any():
+        negative_t[mask] = torch.randint(0, len(entities), (int(mask.sum().item()),))
+        mask = negative_t == t
+    negative_score = model(h, r, negative_t)
+    
+    loss = torch.relu(margin + positive_score - negative_score).mean()
+    loss.backward()
+    optimizer.step()
+    
+    with torch.no_grad():
+        model.entity_embeddings.weight.copy_(nn.functional.normalize(model.entity_embeddings.weight, p=2, dim=1))
+
+print("\nLearned Entity Embeddings:\n")
+model.eval()
+with torch.no_grad():
+    for entity, idx in entity_to_id.items():
+        embedding = model.entity_embeddings.weight[idx].cpu().numpy()
+        print(entity)
+        print(embedding)
+        print()
+
+
+# ==========================================
+# Prc 10: neural classifier symbolic constraints neuro symbolic ai
+# ==========================================
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model_mlp = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
+model_mlp.fit(X_train, y_train)
+
+neural_prediction = model_mlp.predict(X_test)
+final_prediction = []
+
+for i in range(len(X_test)):
+    prediction = neural_prediction[i]
+    sepal_length = X_test[i][0]
+    petal_length = X_test[i][2]
+    
+    if petal_length < 2.5:
+        prediction = 0
+    elif petal_length > 5.0 and sepal_length > 6.0:
+        prediction = 2
+    final_prediction.append(prediction)
+
+neural_accuracy = accuracy_score(y_test, neural_prediction)
+final_accuracy = accuracy_score(y_test, final_prediction)
+
+print("Neural Network Accuracy:", neural_accuracy)
+print("Neuro-Symbolic Accuracy:", final_accuracy)
+print("\nPredictions:")
+for i in range(10):
+    print("Actual:", y_test[i], "Neural:", neural_prediction[i], "Final:", final_prediction[i])

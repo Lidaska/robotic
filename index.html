@@ -19,443 +19,386 @@
 </head>
 <body>
 <pre>
-# ==========================================
-# Prac 1: dpll resolution small propositional knowledge base
-# ==========================================
-def simplify(clauses, literal):
-    new_clauses = []
-    for clause in clauses:
-        if literal in clause:
-            continue
-        elif -literal in clause:
-            new_clause = clause.copy()
-            new_clause.remove(-literal)
-            if len(new_clause) == 0:
-                return None
-            new_clauses.append(new_clause)
-        else:
-            new_clauses.append(clause)
-    return new_clauses
+Practical 1: apply colour space conversions and histogram equalisation with openCV
+import cv2
+image=cv2.imread("image.jpg")
+rgb=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+lab=cv2.cvtColor(image,cv2.COLOR_BGR2LAB)
+gray=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+cv2.imshow("original (BGR)",image)
+cv2.imshow("RGB",rgb)
+cv2.imshow("HSV",hsv)
+cv2.imshow("LAB",lab)
+cv2.imshow("Grayscale",gray)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+image=cv2.imread("image.jpg",0)
+equalized=cv2.equalizeHist(image)
+cv2.imshow("original",image)
+cv2.imshow("equalized",equalized)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
-def find_unit_clause(clauses):
-    for clause in clauses:
-        if len(clause) == 1:
-            return clause[0]
-    return None
-
-def find_pure_literal(clauses):
-    literals = set()
-    for clause in clauses:
-        for literal in clause:
-            literals.add(literal)
-    for literal in literals:
-        if -literal not in literals:
-            return literal
-    return None
-
-def dpll(clauses):
-    if not clauses:
-        return True
-    if [] in clauses:
-        return False
-    unit = find_unit_clause(clauses)
-    if unit is not None:
-        result = simplify(clauses, unit)
-        if result is None:
-            return False
-        return dpll(result)
-    pure = find_pure_literal(clauses)
-    if pure is not None:
-        result = simplify(clauses, pure)
-        if result is None:
-            return False
-        return dpll(result)
-    literal = clauses[0][0]
-    result = simplify(clauses, literal)
-    if result is not None:
-        if dpll(result):
-            return True
-    result = simplify(clauses, -literal)
-    if result is not None:
-        if dpll(result):
-            return True
-    return False
-
-clauses = [
-    [1, 2],
-    [-1, 3],
-    [-2, 3],
-    [3]
-]
-print("knowledge based (cnf):")
-print(clauses)
-if dpll(clauses):
-    print("\nresult:satisfiable")
-else:
-    print("\nresult:unsatisfiable")
-
-
-# ==========================================
-# Prac 2: prolog rules family relationship knowledge base
-# ==========================================
-male = {"john", "peter", "david", "robert", "james"}
-female = {"mary", "linda", "susan", "emily", "anna"}
-
-parents = {
-    "peter": ["john", "mary"],
-    "linda": ["john", "mary"],
-    "david": ["peter", "susan"],
-    "emily": ["peter", "susan"],
-    "james": ["linda", "robert"],
-    "anna": ["linda", "robert"]
-}
-
-def father(child):
-    if child in parents:
-        return [p for p in parents[child] if p in male]
-    return []
-
-def mother(child):
-    if child in parents:
-        return [p for p in parents[child] if p in female]
-    return []
-
-def siblings(person):
-    result = []
-    if person not in parents:
-        return result
-    person_parents = set(parents[person])
-    for child, pr in parents.items():
-        if child != person and set(pr) == person_parents:
-            result.append(child)
-    return result
-
-def brother(person):
-    return [s for s in siblings(person) if s in male]
-
-def sister(person):
-    return [s for s in siblings(person) if s in female]
-
-def grandparents(person):
-    result = []
-    if person in parents:
-        for p in parents[person]:
-            if p in parents:
-                result.extend(parents[p])
-    return list(set(result))
-
-def grandfathers(person):
-    return [g for g in grandparents(person) if g in male]
-
-def grandmothers(person):
-    return [g for g in grandparents(person) if g in female]
-
-def cousins(person):
-    result = []
-    if person not in parents:
-        return result
-    person_parents = parents[person]
-    for child, child_parents in parents.items():
-        if child == person:
-            continue
-        for p1 in person_parents:
-            for p2 in child_parents:
-                if p1 != p2 and set(parents.get(p1, [])) == set(parents.get(p2, [])):
-                    result.append(child)
-    return list(set(result))
-
-print("Father of Peter:", father("peter"))
-print("Mother of Peter:", mother("peter"))
-print()
-print("Grandparents of David:", grandparents("david"))
-print("Grandmothers of James:", grandmothers("james"))
-print()
-print("Siblings of David:", siblings("david"))
-print("Brother of Anna:", brother("anna"))
-print("Sister of David:", sister("david"))
-print()
-print("Cousins of David:", cousins("david"))
-
-
-# ==========================================
-# Prc 4: forward chaining inference python
-# ==========================================
-facts = {"A", "B"}
-rules = [
-    (["A", "B"], "C"),
-    (["C"], "D"),
-    (["D"], "E"),
-    (["E"], "F")
-]
-print("intitial facts:", facts)
-changed = True
-while changed:
-    changed = False
-    for condition, conclusion in rules:
-        if all(item in facts for item in condition):
-            if conclusion not in facts:
-                print(f"interred: {conclusion}")
-                facts.add(conclusion)
-                changed = True
-print("final facts:")
-print(facts)
-
-
-# ==========================================
-# Prc 5: rule engine medical diagnosis expert system
-# ==========================================
-rules_medical = { 
-    "flu": ["fever", "cough", "body pain"],
-    "COVID-19": ["fever", "cough", "loss of smell"],
-    "malaria": ["fever", "chills", "sweating"],
-    "typhoid": ["fever", "headache", "weakness"],
-    "dengue": ["fever", "rash", "joint pain"]
-}
-print("enter symptoms seperate by commas:")
-user_input = input().lower()
-symptoms = [s.strip() for s in user_input.split(",")]
-print("symptoms entered", symptoms)
-diagnosis_found = False
-print("possible diagnosis:")
-for disease, required_symptoms in rules_medical.items():
-    if all(symptom in symptoms for symptom in required_symptoms):
-        print("yes", disease)
-        diagnosis_found = True
-if not diagnosis_found:
-    print("no matching disease found.")
-
-
-# ==========================================
-# Prc 6: query conceptnet api explore commonsense relations
-# ==========================================
-relations = {
-    "dog": [
-        ("IsA", "animal"),
-        ("CapableOf", "bark"),
-        ("CapableOf", "run"),
-        ("RelatedTo", "pet"),
-        ("HasA", "tail")
-    ],
-    "cat": [
-        ("IsA", "animal"),
-        ("CapableOf", "meow"),
-        ("RelatedTo", "pet"),
-        ("HasA", "tail")
-    ],
-    "car": [
-        ("IsA", "vehicle"),
-        ("UsedFor", "transportation"),
-        ("HasA", "wheel")
-    ],
-    "bird": [
-        ("IsA", "animal"),
-        ("CapableOf", "fly"),
-        ("HasA", "wings")
-    ]
-}
-concept = input("Enter a concept: ").lower()
-if concept in relations:
-    print("\nCommonsense Relations for:", concept)
-    print("-" * 40)
-    for relation, related_concept in relations[concept]:
-        print(concept, "→", relation, "→", related_concept)
-else:
-    print("Concept not found.")
-
-
-# ==========================================
-# Prc 7: case based reasoning system help desk scenario
-# ==========================================
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-cases = [
-    {"id": "c001", "problem": "wi-fi is not connecting to the internet", "solution": "restart the router and reconnect the computer to wi-fi."},
-    {"id": "c002", "problem": "printer is not printing documents", "solution": "check the printer connection and restart the printer."},
-    {"id": "c003", "problem": "computer is running very slowly", "solution": "delete temporary files and close unnecessary applications."},
-    {"id": "c004", "problem": "user forgets the login password", "solution": "reset the password using the password recovery option."},
-    {"id": "c005", "problem": "software application is not opening", "solution": "update or reinstall the software application."}
-]
-
-problem_texts = [case["problem"] for case in cases]
-vectorizer = TfidfVectorizer()
-case_vectors = vectorizer.fit_transform(problem_texts)
-new_problem = input("Enter your help-desk problem: ")
-new_vector = vectorizer.transform([new_problem])
-similarities = cosine_similarity(new_vector, case_vectors)
-best_index = similarities.argmax()
-best_case = cases[best_index]
-best_score = similarities[0][best_index]
-
-print("\n------ CBR RESULT -------")
-print("New problem:", new_problem)
-print("Similar case:", best_case["problem"])
-print("Previous problem:", best_case["problem"])
-print("Similarity score:", round(best_score, 2))
-print("Recommended solution:", best_case["solution"])
-if best_score >= 0.30:
-    print("\nThe previous solution can be considered.")
-else:
-    print("\nNo sufficiently similar case was found.")
-
-
-# ==========================================
-# Prc 8: knowledge graph rdflib visualise
-# ==========================================
-from rdflib import Graph, Namespace, RDF
-import networkx as nx
+Practical 2: detect edge using sobel and canny compare result
+import cv2
 import matplotlib.pyplot as plt
-
-graph = Graph()
-EX = Namespace("http://example.org/")
-graph.add((EX.sayali, EX.studies, EX.ComputerScience))
-graph.add((EX.sayali, EX.knows, EX.Python))
-graph.add((EX.sayali, EX.uses, EX.RDFLib))
-graph.add((EX.ComputerScience, EX.hasTopic, EX.AI))
-graph.add((EX.Python, EX.usedFor, EX.KnowledgeGraph))
-
-print("Knowledge Graph Triples:\n")
-for subject, predicate, object in graph:
-    print(subject, predicate, object)
-
-G = nx.DiGraph()
-for subject, predicate, object in graph:
-    s = str(subject).split("/")[-1]
-    p = str(predicate).split("/")[-1]
-    o = str(object).split("/")[-1]
-    G.add_node(s)
-    G.add_node(o)
-    G.add_edge(s, o, label=p)
-
-pos = nx.spring_layout(G, seed=42)
-nx.draw_networkx_nodes(G, pos, node_color="lightblue", node_size=2500)
-nx.draw_networkx_edges(G, pos, arrows=True, arrowstyle="->", arrowsize=20)
-nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold")
-edge_labels = nx.get_edge_attributes(G, "label")
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=9)
-plt.title("RDF Knowledge Graph")
+img=cv2.imread("image.jpg")
+img_rgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+sobel_x=cv2.Sobel(gray,cv2.CV_64F,1,0,ksize=3)
+sobel_y=cv2.Sobel(gray,cv2.CV_64F,0,1,ksize=3)
+sobel_x=cv2.convertScaleAbs(sobel_x)
+sobel_y=cv2.convertScaleAbs(sobel_y)
+sobel=cv2.addWeighted(sobel_x,0.5,sobel_y,0.5,0)
+canny=cv2.Canny(gray,100,200)
+plt.figure(figsize=(15,5))
+plt.subplot(1,3,1)
+plt.imshow(img_rgb)
+plt.title("original image")
+plt.axis("off")
+plt.subplot(1,3,2)
+plt.imshow(sobel,cmap="gray")
+plt.title("sobel edge detection")
+plt.axis("off")
+plt.subplot(1,3,3)
+plt.imshow(canny,cmap="gray")
+plt.title("canny edge detection")
 plt.axis("off")
 plt.show()
 
+Practical 3: extract HOG features and visualise gradient orientation
+import cv2
+import matplotlib.pyplot as plt
+from skimage.feature import hog
+image = cv2.imread(r"C:\Users\LAB202\Desktop\abc\image.png.png")
+image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+gray = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
+hog_features,hog_image=hog (
+gray,
+orientations=9,
+pixels_per_cell=(8, 8),
+cells_per_block=(2, 2),
+visualize=True,
+block_norm="L2-Hys"
+)
+print("number of hog features:",len(hog_features))
+plt.figure(figsize=(10,5))
+plt.subplot(1,2,1)
+plt.imshow(image)
+plt.title("original image")
+plt.axis("off")
+plt.subplot(1,2,2)
+plt.imshow(hog_image,cmap="gray")
+plt.title("hog gradient orientation")
+plt.axis("off")
+plt.show()
 
-# ==========================================
-# Prc 9: train transe embedding mini knowledge graph
-# ==========================================
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-triples = [
-    ("Mumbai", "located_in", "Maharashtra"),
-    ("Pune", "located_in", "Maharashtra"),
-    ("Nagpur", "located_in", "Maharashtra"),
-    ("Maharashtra", "part_of", "India"),
-    ("Mumbai", "famous_for", "Bollywood"),
-    ("Pune", "famous_for", "Education")
-]
-
-entities = sorted(set(h for h, r, t in triples).union(t for h, r, t in triples))
-relations = sorted(set(r for h, r, t in triples))
-entity_to_id = {entity: i for i, entity in enumerate(entities)}
-relation_to_id = {relation: i for i, relation in enumerate(relations)}
-
-encoded_triples = []
-for h, r, t in triples:
-    encoded_triples.append([entity_to_id[h], relation_to_id[r], entity_to_id[t]])
-triples_tensor = torch.tensor(encoded_triples, dtype=torch.long)
-
-class TransE(nn.Module):
-    def __init__(self, num_entities, num_relations, embedding_dim=20):
-        super().__init__()
-        self.entity_embeddings = nn.Embedding(num_entities, embedding_dim)
-        self.relation_embeddings = nn.Embedding(num_relations, embedding_dim)
-        nn.init.xavier_uniform_(self.entity_embeddings.weight)
-        nn.init.xavier_uniform_(self.relation_embeddings.weight)
-
-    def forward(self, h, r, t):
-        h_embedding = self.entity_embeddings(h)
-        r_embedding = self.relation_embeddings(r)
-        t_embedding = self.entity_embeddings(t)
-        score = torch.norm(h_embedding + r_embedding - t_embedding, p=2, dim=1)
-        return score
-
-model = TransE(num_entities=len(entities), num_relations=len(relations), embedding_dim=20)
-optimizer = optim.Adam(model.parameters(), lr=0.01)
-
-epochs = 1000
-margin = 1.0
-for epoch in range(epochs):
-    model.train()
-    optimizer.zero_grad()
-    h = triples_tensor[:, 0]
-    r = triples_tensor[:, 1]
-    t = triples_tensor[:, 2]
-    positive_score = model(h, r, t)
-    
-    negative_t = torch.randint(0, len(entities), (len(triples),))
-    mask = negative_t == t
-    while mask.any():
-        negative_t[mask] = torch.randint(0, len(entities), (int(mask.sum().item()),))
-        mask = negative_t == t
-    negative_score = model(h, r, negative_t)
-    
-    loss = torch.relu(margin + positive_score - negative_score).mean()
-    loss.backward()
-    optimizer.step()
-    
-    with torch.no_grad():
-        model.entity_embeddings.weight.copy_(nn.functional.normalize(model.entity_embeddings.weight, p=2, dim=1))
-
-print("\nLearned Entity Embeddings:\n")
-model.eval()
-with torch.no_grad():
-    for entity, idx in entity_to_id.items():
-        embedding = model.entity_embeddings.weight[idx].cpu().numpy()
-        print(entity)
-        print(embedding)
-        print()
-
-
-# ==========================================
-# Prc 10: neural classifier symbolic constraints neuro symbolic ai
-# ==========================================
+Practical 4: Match keypoints between two images using SIFT + Ransac
+import cv2
 import numpy as np
-from sklearn.datasets import load_iris
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+img1=cv2.imread(r"C:\Users\LAB202\Pictures\images.jpg")
+img2=cv2.imread(r"image1.png")
+gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
+gray2=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+sift=cv2.SIFT_create()
+kp1, des1=sift.detectAndCompute(gray1,None)
+kp2, des2=sift.detectAndCompute(gray2,None)
+bf=cv2.BFMatcher()
+matches=bf.match(des1,des2)
+matches=sorted(matches,key=lambda x: x.distance)
+src_pts= np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1,1,2)
+dst_pts= np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1,1,2)
+H, mask=cv2.findHomography(src_pts,dst_pts,cv2.RANSAC,5.0)
+matchesMask=mask.ravel().tolist()
+result=cv2.drawMatches(
+img1,
+kp1,
+img2,
+kp2,
+matches,
+None,
+matchesMask=matchesMask,
+flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+)
+plt.figure(figsize=(15,8))
+plt.imshow(cv2.cvtColor(result,cv2.COLOR_BGR2RGB))
+plt.title("SIFT + RANSAC Matching")
+plt.axis("off")
+plt.show()
 
-iris = load_iris()
-X = iris.data
-y = iris.target
+Practical 5: Segment an image using k-means color clustering
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+image = cv2.imread("")
+image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+pixels = image_rgb.reshape((-1, 3))
+pixels = np.float32(pixels)
+K = 4
+criteria = (
+    cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER,
+    100,
+    0.2
+)
+compactness, labels, centers = cv2.kmeans(
+    pixels,
+    K,
+    None,
+    criteria,
+    10,
+    cv2.KMEANS_RANDOM_CENTERS
+)
+centers = np.uint8(centers)
+segmented_data = centers[labels.flatten()]
+segmented_image = segmented_data.reshape(image_rgb.shape)
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(image_rgb)
+plt.title("Original Image")
+plt.axis("off")
+plt.subplot(1, 2, 2)
+plt.imshow(segmented_image)
+plt.title("K-Means Segmented Image")
+plt.axis("off")
+plt.show()
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+Practical 6: Implement optical flow on a video clip with Lucas Kanade
+import cv2
+import numpy as np
+cap=cv2.VideoCapture(r"")
+ret, old_frame=cap.read()
+if not ret:
+    print("cannot open video")
+    exit()
+old_gray=cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+old_points=cv2.goodFeaturesToTrack(
+    old_gray,
+    maxCorners=100,
+    qualityLevel=0.3,
+    minDistance=7,
+    blockSize=7
+)
+lk_params=dict(
+    winSize=(15,15),
+    maxLevel=2,
+    criteria=(
+        cv2.TERM_CRITERIA_EPS +
+        cv2.TERM_CRITERIA_COUNT,
+        10,
+        0.03
+    )
+)
+mask=np.zeros_like(old_frame)
+while True:
+    ret, frame=cap.read()
+    if not ret:
+        break
+    frame_gray=cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    new_points, status, error = cv2.calcOpticalFlowPyrLK(
+        old_gray,
+        frame_gray,
+        old_points,
+        None,
+        **lk_params
+    )
+    if new_points is not None:
+        good_new=new_points[status == 1]
+        good_old=old_points[status == 1]
+        for new, old in zip(good_new, good_old):
+            x_new, y_new = new.ravel()
+            x_old, y_old=old.ravel()
+            mask=cv2.line(
+                mask,
+                (int(x_new),int(y_new)),
+                (int(x_old),int(y_old)),
+                (0,255,0),
+                2
+            )
+            frame=cv2.circle(
+                frame,
+                (int(x_new),int(y_new)),
+                5,
+                (0,0,255),
+                -1
+            )
+        output=cv2.add(frame,mask)
+        cv2.imshow("Lucas-Kanade Optical flow",output)
+        old_gray=frame_gray.copy()
+        old_points=good_new.reshape(-1,1,2)
+    if cv2.waitKey(30) & 0xFF== 27:
+        break
+cap.release()
+cv2.destroyAllWindows()
 
-model_mlp = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
-model_mlp.fit(X_train, y_train)
+Practical 8: Apply affine and perspective transforms to correct a document scan
+import cv2
+import numpy as np
+image = cv2.imread(
+    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\Document.jpg"
+)
+if image is None:
+    print("Image not found!")
+    exit()
+pts1 = np.float32([
+    [100, 100],
+    [500, 100],
+    [100, 600]
+])
+pts2 = np.float32([
+    [80, 120],
+    [500, 100],
+    [120, 600]
+])
+M = cv2.getAffineTransform(pts1, pts2)
+affine = cv2.warpAffine(
+    image,
+    M,
+    (image.shape[1], image.shape[0])
+)
+src = np.float32([
+    [100, 80],
+    [550, 100],
+    [600, 650],
+    [80, 620]
+])
+dst = np.float32([
+    [0, 0],
+    [500, 0],
+    [500, 700],
+    [0, 700]
+])
+P = cv2.getPerspectiveTransform(src, dst)
+perspective = cv2.warpPerspective(
+    image,
+    P,
+    (500, 700)
+)
+cv2.imshow("Original Document", image)
+cv2.imshow("Affine Transformation", affine)
+cv2.imshow("Perspective Correction", perspective)
+cv2.imwrite("affine_document.jpg", affine)
+cv2.imwrite("corrected_document.jpg", perspective)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
-neural_prediction = model_mlp.predict(X_test)
-final_prediction = []
+Practical 9: Build a simple object detector using template matching
+import cv2
+image = cv2.imread(
+    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\Main Image.png"
+)
+template = cv2.imread(
+    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\template.jpg"
+)
+if image is None:
+    print("Main image not found!")
+    exit()
+if template is None:
+    print("Template image not found!")
+    exit()
+h, w = template.shape[:2]
+result = cv2.matchTemplate(
+    image,
+    template,
+    cv2.TM_CCOEFF_NORMED
+)
+min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+threshold = 0.60
+if max_val >= threshold:
+    top_left = max_loc
+    bottom_right = (
+        top_left[0] + w,
+        top_left[1] + h
+    )
+    cv2.rectangle(
+        image,
+        top_left,
+        bottom_right,
+        (0, 255, 0),
+        2
+    )
+    print("Object detected!")
+    print("Matching score:", max_val)
+else:
+    print("Object not detected!")
+    print("Best matching score:", max_val)
+cv2.imshow("Object Detection", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
-for i in range(len(X_test)):
-    prediction = neural_prediction[i]
-    sepal_length = X_test[i][0]
-    petal_length = X_test[i][2]
-    
-    if petal_length < 2.5:
-        prediction = 0
-    elif petal_length > 5.0 and sepal_length > 6.0:
-        prediction = 2
-    final_prediction.append(prediction)
+Practical Extra 1: Perform image resizing, cropping, rotation and flipping using opencv
+import cv2
+import matplotlib.pyplot as plt
+img = cv2.imread("image.jpg")
+h, w = img.shape[:2]
+resized = cv2.resize(img, (200, 200))
+cropped = img[h//4:3*h//4, w//4:3*w//4]
+rotated = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+flipped = cv2.flip(img, 1)
+names = ["Original", "Resized", "Cropped", "Rotated", "Flipped"]
+for i, im in enumerate([img, resized, cropped, rotated, flipped]):
+    plt.subplot(2, 3, i+1); plt.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB)); plt.title(names[i])
+plt.show()
 
-neural_accuracy = accuracy_score(y_test, neural_prediction)
-final_accuracy = accuracy_score(y_test, final_prediction)
+Practical Extra 2: Apply Gaussian blur and sharpening filters to enhance an image
+import cv2, numpy as np
+import matplotlib.pyplot as plt
+img = cv2.imread("image.jpg")
+blur = cv2.GaussianBlur(img, (7,7), 0)
+kernel = np.array([[0,-1,0], [-1,5,-1], [0,-1,0]])
+sharp = cv2.filter2D(img, -1, kernel)
+names = ["Original", "Gaussian Blur", "Sharpened"]
+for i, im in enumerate([img, blur, sharp]):
+    plt.subplot(1, 3, i+1); plt.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB)); plt.title(names[i])
+plt.show()
 
-print("Neural Network Accuracy:", neural_accuracy)
-print("Neuro-Symbolic Accuracy:", final_accuracy)
-print("\nPredictions:")
-for i in range(10):
-    print("Actual:", y_test[i], "Neural:", neural_prediction[i], "Final:", final_prediction[i])
+Practical Extra 3: Perform image segmentation using thresholding and morphological operations
+import cv2, numpy as np
+import matplotlib.pyplot as plt
+gray = cv2.imread("image.jpg", 0)
+_, th = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+k = np.ones((5,5), np.uint8)
+erosion = cv2.erode(th, k)
+dilation = cv2.dilate(th, k)
+opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, k)
+closing = cv2.morphologyEx(th, cv2.MORPH_CLOSE, k)
+names = ["Original", "Threshold", "Erosion", "Dilation", "Opening", "Closing"]
+for i, im in enumerate([gray, th, erosion, dilation, opening, closing]):
+    plt.subplot(2, 3, i+1); plt.imshow(im, cmap="gray"); plt.title(names[i])
+plt.show()
+
+Practical Extra 4: Detect and Match image features using ORB and BFMatcher
+import cv2
+import matplotlib.pyplot as plt
+img1 = cv2.imread("image1.jpg")
+img2 = cv2.imread("image2.jpg")
+orb = cv2.ORB_create()
+k1, d1 = orb.detectAndCompute(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY), None)
+k2, d2 = orb.detectAndCompute(cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY), None)
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+m = sorted(bf.match(d1, d2), key=lambda x: x.distance)
+res = cv2.drawMatches(img1, k1, img2, k2, m[:50], None)
+plt.imshow(cv2.cvtColor(res, cv2.COLOR_BGR2RGB)); plt.title("ORB + BFMatcher"); plt.axis("off")
+plt.show()
+
+Practical Extra 5: Implement image stitching using feature matching and homography
+import cv2, numpy as np
+import matplotlib.pyplot as plt
+img1 = cv2.imread("left.jpg")
+img2 = cv2.imread("right.jpg")
+sift = cv2.SIFT_create()
+k1, d1 = sift.detectAndCompute(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY), None)
+k2, d2 = sift.detectAndCompute(cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY), None)
+matches = cv2.BFMatcher().knnMatch(d1, d2, k=2)
+good = [m for m, n in matches if m.distance < 0.75 * n.distance]
+src = np.float32([k2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
+dst = np.float32([k1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
+H, _ = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+result = cv2.warpPerspective(img2, H, (img1.shape[1] + img2.shape[1], img1.shape[0]))
+result[0:img1.shape[0], 0:img1.shape[1]] = img1
+plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB)); plt.title("Stitched Image"); plt.axis("off")
+plt.show()
 </pre>
 </body>
 </html>

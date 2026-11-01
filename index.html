@@ -19,386 +19,380 @@
 </head>
 <body>
 <pre>
-Practical 1: apply colour space conversions and histogram equalisation with openCV
-import cv2
-image=cv2.imread("image.jpg")
-rgb=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-lab=cv2.cvtColor(image,cv2.COLOR_BGR2LAB)
-gray=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-cv2.imshow("original (BGR)",image)
-cv2.imshow("RGB",rgb)
-cv2.imshow("HSV",hsv)
-cv2.imshow("LAB",lab)
-cv2.imshow("Grayscale",gray)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-image=cv2.imread("image.jpg",0)
-equalized=cv2.equalizeHist(image)
-cv2.imshow("original",image)
-cv2.imshow("equalized",equalized)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+1 | Exploring Your Location and Directory Contents
+a) Display the full path of your current working directory. b) List the contents of your home directory. c) List the contents of your home directory including hidden files. d) List the contents in long format showing permissions, size and date. e) List the contents of the /etc directory without changing into it.
+Answer:
+a) pwd
+b) ls ~
+c) ls -a ~
+d) ls -la ~
+e) ls /etc
+------------------------------------------------------------
+2 | Creating and Viewing Files with cat
+a) Create a file students.txt using cat and enter the names of 5 students, one per line. Save and exit.b) Display the contents of students.txt on the screen.c) Append 3 more student names to students.txt using cat without erasing the existing content.d) Display the file with line numbers.e) Create another file subjects.txt with 3 subject names and combine both files into a new file combined.txt using a single cat command.
+Answer:
+a) cat > students.txt
+(Type 5 names, hit Enter after each, press Ctrl+D to save)
+b) cat students.txt
+c) cat >> students.txt
+(Type 3 names, hit Enter, press Ctrl+D to save)
+d) cat -n students.txt
+e) cat students.txt subjects.txt > combined.txt
+------------------------------------------------------------
+3 | Creating Directories and Moving Between Them
+a) Create a directory named College in your home directory. b) Inside College, create three directories: Sem1, Sem2 and Sem3 using a single command. c) Create the nested structure Projects/Linux/Lab1 in one command using the appropriate option. d) Move into Projects/Linux/Lab1 and confirm your location with pwd. e) Return to your home directory using two different methods.
+Answer:
+a) mkdir ~/College
+b) mkdir ~/College/Sem1 ~/College/Sem2 ~/College/Sem3
+c) mkdir -p ~/Projects/Linux/Lab1
+d) cd ~/Projects/Linux/Lab1 && pwd
+e) Method 1: cd ~
+   Method 2: cd
+------------------------------------------------------------
+4 | Working with the nano Editor
+a) Open a new file profile.txt in nano.b) Type your name, roll number, class and college name on separate lines.c) Save the file without exiting, then add one more line with your email ID.d) Use the search feature in nano to find the word "college".e) Save and exit, then display the file using cat to verify. Write the keyboard shortcuts you used for Save, Exit and Search.
+Answer:
+a) nano profile.txt
+b) (Type the required details in the editor)
+c) Press Ctrl+O (Enter) to save, then type the email ID on a new line.
+d) Press Ctrl+W, type "college", and press Enter.
+e) Press Ctrl+O (Enter) to save, Ctrl+X to exit. Verify with: cat profile.txt
+   Shortcuts used -> Save: Ctrl+O, Exit: Ctrl+X, Search: Ctrl+W
+------------------------------------------------------------
+5 | Viewing and Interpreting Permission Strings
+a) Create a file report.txt and a directory Data in your home directory.b) Display the permissions of both using ls -l.c) From the output, identify the file type, owner permissions, group permissions and others' permissions for report.txt.d) Interpret the following permission strings and write who can read, write and execute: 
+-rwxr-xr--
+drw-r-----
+-rw-rw-rw-
+-r--------
+Answer:
+a) touch ~/report.txt && mkdir ~/Data
+b) ls -l ~/report.txt ~/Data
+c) File type: - (regular file). Owner: rw- (read/write). Group: r-- (read). Others: r-- (read).
+d) -rwxr-xr-- : Owner (read, write, execute). Group (read, execute). Others (read).
+   drw-r----- : Owner (read, write). Group (read). Others (no permissions).
+   -rw-rw-rw- : Owner, Group, Others can all read and write.
+   -r-------- : Owner (read). Group and Others (no permissions).
+------------------------------------------------------------
+6 | Create a file employees.txt with the following content (using cat, nano or vim): 
+[Format: EmpID, Name, Department, City, Salary]
+101,Ravi,Sales,Mumbai,45000 
+102,Priya,HR,Pune,38000 
+103,Amit,Sales,Delhi,52000 
+104,Sneha,IT,Mumbai,61000 
+105,Rahul,IT,Pune,58000 
+106,Neha,HR,Mumbai,40000 
+107,Karan,Sales,Mumbai,47000 
+108,Pooja,IT,Delhi,63000 
+109,Vikas,Accounts,Pune,42000 
+110,Anjali,Accounts,Mumbai,44000
+a) Display all lines containing the word Mumbai.b) Display all lines containing sales, ignoring case.c) Display all lines that do not contain IT.d) Display matching lines for Pune along with their line numbers.e) Count the number of employees in the HR department using only grep.
+Answer:
+a) grep 'Mumbai' employees.txt
+b) grep -i 'sales' employees.txt
+c) grep -v 'IT' employees.txt
+d) grep -n 'Pune' employees.txt
+e) grep -c 'HR' employees.txt
+------------------------------------------------------------
+7 | Creating a Basic User
+a) Display the name of the currently logged-in user and their user ID.b) Create a new user named rohan using useradd.c) Verify that the user has been created by checking the /etc/passwd file.d) Set a password for rohan.e) Identify and explain each field of rohan's entry in /etc/passwd.
+Answer:
+a) whoami && id -u
+b) sudo useradd rohan
+c) grep '^rohan' /etc/passwd
+d) sudo passwd rohan
+e) Example entry: rohan:x:1001:1001::/home/rohan:/bin/sh
+   Fields -> 1: Username (rohan), 2: Password placeholder (x), 3: User ID (1001), 4: Group ID (1001), 5: User info/comment (empty), 6: Home directory (/home/rohan), 7: Default login shell (/bin/sh)
+------------------------------------------------------------
+8 | Changing Ownership and Group (chown and chgrp)
+a) Check the current owner and group of report.txt.b) Change the owner of report.txt to student2.c) Change the group of report.txt to labgroup using chgrp.d) Change both the owner and group back to your own user in a single chown command.e) Display the final ownership using ls -l.
+Answer:
+a) ls -l report.txt
+b) sudo chown student2 report.txt
+c) sudo chgrp labgroup report.txt
+d) sudo chown $USER:$USER report.txt
+e) ls -l report.txt
+------------------------------------------------------------
+9 | Absolute and Relative Paths
+a) From your home directory, move into College/Sem1 using a relative path.b) From Sem1, move into Sem2 using a relative path with .c) Move into /tmp using an absolute path and verify with pwd.d) Return to the previous directory you were in using a single shortcut.e) Write in one line each the difference between an absolute path and a relative path, with one example of each.
+Answer:
+a) cd College/Sem1
+b) cd ../Sem2
+c) cd /tmp && pwd
+d) cd -
+e) Absolute path starts from the root directory (e.g., /home/user/College). Relative path starts from the current directory (e.g., ../Sem2).
+------------------------------------------------------------
+10 | Using head and tail
+Create a file numbers.txt containing numbers from 1 to 50, one per line (you may use seq 1 50 > numbers.txt). Then:
+a) Display the first 10 lines using head.b) Display the first 5 lines only.c) Display the last 10 lines using tail.d) Display the last 7 lines only.e) Display lines 21 to 30 by combining head and tail with a pipe.
+Answer:
+a) head -n 10 numbers.txt
+b) head -n 5 numbers.txt
+c) tail -n 10 numbers.txt
+d) tail -n 7 numbers.txt
+e) head -n 30 numbers.txt | tail -n 10
+------------------------------------------------------------
+11 | Viewing Group Information
+a) Display the groups that the current user belongs to using the groups command.b) Display the user ID, primary group ID and all group IDs of the current user using id.c) Display the contents of the /etc/group file.d) Display only the last 5 groups from /etc/group.e) Pick any one entry from /etc/group and explain each of its four fields.
+Answer:
+a) groups
+b) id
+c) cat /etc/group
+d) tail -n 5 /etc/group
+e) Example: sudo:x:27:username
+   Fields -> 1: Group name (sudo). 2: Group password placeholder (x). 3: Group ID / GID (27). 4: Comma-separated list of group members (username).
+------------------------------------------------------------
+12 | Write a script 'intro.sh' that:
+a) Includes the shebang line and a comment describing the script.b) Stores your name, roll number and college name in three variables.c) Displays the values of these variables in a readable format using echo.d) Displays the current date, current user and current working directory using command substitution.e) Make the script executable and run it in two different ways (./intro.sh and bash intro.sh).
+Answer:
+a) #!/bin/bash
+   # This script prints user introduction details
+b) name="John"; roll="101"; college="XYZ College"
+c) echo "Name: $name, Roll: $roll, College: $college"
+d) echo "Date: $(date), User: $(whoami), Dir: $(pwd)"
+e) chmod +x intro.sh
+   ./intro.sh
+   bash intro.sh
+------------------------------------------------------------
+13 | Viewing Processes with ps
+a) Display the processes running in the current terminal using ps.b) Display all processes running on the system with full details using ps -ef (or ps aux). c) From the output of part (b), identify and explain the columns PID, PPID, USER and CMD.d) Display all processes owned by the current user.e) Find the process ID of the bash process using ps combined with grep.
+Answer:
+a) ps
+b) ps -ef
+c) PID = Process ID (unique ID for the process). PPID = Parent Process ID (ID of the process that started it). USER = Owner of the process. CMD = Command or executable that launched the process.
+d) ps -u $USER
+e) ps -ef | grep bash
+------------------------------------------------------------
+14 | Write a script loops.sh that:
+a) Displays numbers from 1 to 10 using a for loop.b) Displays the multiplication table of a number entered by the user (up to 10) using a for loop.c) Calculates and displays the sum of numbers from 1 to N (N entered by user) using a while loop.d) Run the script and display the output for each part.
+Answer:
+Script loops.sh content:
+#!/bin/bash
+# a) For loop
+for i in {1..10}; do echo $i; done
+# b) Multiplication table
+read -p "Enter number: " num
+for i in {1..10}; do echo "$num x $i = $((num * i))"; done
+# c) While loop sum
+read -p "Enter N: " n
+sum=0; i=1
+while [ $i -le $n ]; do sum=$((sum + i)); i=$((i + 1)); done
+echo "Sum:" $sum
 
-Practical 2: detect edge using sobel and canny compare result
-import cv2
-import matplotlib.pyplot as plt
-img=cv2.imread("image.jpg")
-img_rgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-sobel_x=cv2.Sobel(gray,cv2.CV_64F,1,0,ksize=3)
-sobel_y=cv2.Sobel(gray,cv2.CV_64F,0,1,ksize=3)
-sobel_x=cv2.convertScaleAbs(sobel_x)
-sobel_y=cv2.convertScaleAbs(sobel_y)
-sobel=cv2.addWeighted(sobel_x,0.5,sobel_y,0.5,0)
-canny=cv2.Canny(gray,100,200)
-plt.figure(figsize=(15,5))
-plt.subplot(1,3,1)
-plt.imshow(img_rgb)
-plt.title("original image")
-plt.axis("off")
-plt.subplot(1,3,2)
-plt.imshow(sobel,cmap="gray")
-plt.title("sobel edge detection")
-plt.axis("off")
-plt.subplot(1,3,3)
-plt.imshow(canny,cmap="gray")
-plt.title("canny edge detection")
-plt.axis("off")
-plt.show()
+d) Run using: bash loops.sh
+------------------------------------------------------------
+15 | Updating Package Lists and the System
+a) Update the local package index using apt.b) Display the list of packages that can be upgraded.c) Upgrade all installed packages using apt.d) Perform the same update and upgrade using apt-get.e) Write the difference between apt update and apt upgrade.
+Answer:
+a) sudo apt update
+b) apt list --upgradable
+c) sudo apt upgrade
+d) sudo apt-get update && sudo apt-get upgrade
+e) 'apt update' fetches the latest package lists and metadata from the repositories. 'apt upgrade' actually downloads and installs the newer versions of installed packages.
+------------------------------------------------------------
+16 | A college department is setting up access groups:
+a) Create groups cs_dept and it_dept.b) Create user kunal with cs_dept as his primary group and a home directory.c) Add kunal to it_dept as a secondary group and verify.d) The department is restructured: rename it_dept to tech_dept and change its group ID to 6000.e) Clean up: delete user kunal with his home directory, then delete groups cs_dept and tech_dept, and verify they no longer exist in /etc/group.
+Answer:
+a) sudo groupadd cs_dept && sudo groupadd it_dept
+b) sudo useradd -g cs_dept -m kunal
+c) sudo usermod -aG it_dept kunal && id kunal
+d) sudo groupmod -n tech_dept -g 6000 it_dept
+e) sudo userdel -r kunal
+   sudo groupdel cs_dept
+   sudo groupdel tech_dept
+   grep -E "cs_dept|tech_dept" /etc/group
+------------------------------------------------------------
+17 | Creating a Simple Backup Script
+a) Create a directory ~/important and add three sample files in it.b) Create a directory ~/backup to store backups.c) Write a script backup.sh that copies all files from ~/important to ~/backup.d) Modify the script to create a compressed archive using tar, with the current date and time in the filename (e.g., backup_2026-10-29_09-45.tar.gz).e) Make the script executable, run it manually, and verify that the archive is created.
+Answer:
+a) mkdir ~/important && touch ~/important/file1 ~/important/file2 ~/important/file3
+b) mkdir ~/backup
+c) Script backup.sh:
+   #!/bin/bash
+   cp -r ~/important/* ~/backup/
+d) Modified backup.sh:
+   #!/bin/bash
+   tar -czvf ~/backup/backup_$(date +%Y-%m-%d_%H-%M).tar.gz ~/important/
+e) chmod +x backup.sh
+   ./backup.sh
+   ls -l ~/backup
+------------------------------------------------------------
+18 | Monitoring Processes with top
+a) Run top and identify the total number of tasks, and how many are running and sleeping.b) Identify the CPU usage and memory usage summary from the header section.c) Sort the processes by memory usage while top is running.d) Display only the processes of the current user from within top.e) Write the purpose of any four columns shown in top (e.g., PID, %CPU, %MEM, TIME+) and exit top properly.
+Answer:
+a) View the second line: Tasks: ... total, ... running, ... sleeping.
+b) View the %Cpu(s) row and MiB Mem row at the top.
+c) Press 'Shift + M' (or 'M' depending on version) while top is running.
+d) Press 'u', enter your username, and press Enter.
+e) PID = Process ID. %CPU = Percentage of CPU used. %MEM = Percentage of RAM used. TIME+ = Total CPU time the task has used. Exit top by pressing 'q'.
+------------------------------------------------------------
+19 | Reading User Input and Arithmetic
+Write a script calc.sh that:
+a) Accepts two numbers from the user using read, with a suitable prompt message.b) Calculates and displays their sum, difference, product and quotient.c) Displays the remainder when the first number is divided by the second.d) Run the script with two sets of input values and display the output.
+Answer:
+Script calc.sh content:
+#!/bin/bash
+read -p "Enter two numbers: " n1 n2
+echo "Sum: $((n1 + n2))"
+echo "Diff: $((n1 - n2))"
+echo "Product: $((n1 * n2))"
+echo "Quotient: $((n1 / n2))"
+echo "Remainder: $((n1 % n2))"
 
-Practical 3: extract HOG features and visualise gradient orientation
-import cv2
-import matplotlib.pyplot as plt
-from skimage.feature import hog
-image = cv2.imread(r"C:\Users\LAB202\Desktop\abc\image.png.png")
-image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-gray = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
-hog_features,hog_image=hog (
-gray,
-orientations=9,
-pixels_per_cell=(8, 8),
-cells_per_block=(2, 2),
-visualize=True,
-block_norm="L2-Hys"
-)
-print("number of hog features:",len(hog_features))
-plt.figure(figsize=(10,5))
-plt.subplot(1,2,1)
-plt.imshow(image)
-plt.title("original image")
-plt.axis("off")
-plt.subplot(1,2,2)
-plt.imshow(hog_image,cmap="gray")
-plt.title("hog gradient orientation")
-plt.axis("off")
-plt.show()
+d) Run using: bash calc.sh
+------------------------------------------------------------
 
-Practical 4: Match keypoints between two images using SIFT + Ransac
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-img1=cv2.imread(r"C:\Users\LAB202\Pictures\images.jpg")
-img2=cv2.imread(r"image1.png")
-gray1=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-gray2=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
-sift=cv2.SIFT_create()
-kp1, des1=sift.detectAndCompute(gray1,None)
-kp2, des2=sift.detectAndCompute(gray2,None)
-bf=cv2.BFMatcher()
-matches=bf.match(des1,des2)
-matches=sorted(matches,key=lambda x: x.distance)
-src_pts= np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1,1,2)
-dst_pts= np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1,1,2)
-H, mask=cv2.findHomography(src_pts,dst_pts,cv2.RANSAC,5.0)
-matchesMask=mask.ravel().tolist()
-result=cv2.drawMatches(
-img1,
-kp1,
-img2,
-kp2,
-matches,
-None,
-matchesMask=matchesMask,
-flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
-)
-plt.figure(figsize=(15,8))
-plt.imshow(cv2.cvtColor(result,cv2.COLOR_BGR2RGB))
-plt.title("SIFT + RANSAC Matching")
-plt.axis("off")
-plt.show()
+------------------------------------------------------------
+21 | Copying Files and Directories
+Create two empty files notes.txt and marks.txt in College/Sem1 (you may use touch). Then:
+a) Copy notes.txt into College/Sem2.b) Copy marks.txt into Sem2 with the new name marks_backup.txt.c) Copy both files from Sem1 into Sem3 using a single command.d) Copy the entire Sem1 directory to a new directory named Sem1_copy.e) Use ls to verify all the above copies.
+Answer:
+touch College/Sem1/notes.txt College/Sem1/marks.txt
+a) cp College/Sem1/notes.txt College/Sem2/
+b) cp College/Sem1/marks.txt College/Sem2/marks_backup.txt
+c) cp College/Sem1/notes.txt College/Sem1/marks.txt College/Sem3/
+d) cp -r College/Sem1 College/Sem1_copy
+e) ls College/Sem2 College/Sem3 College/Sem1_copy
+------------------------------------------------------------
 
-Practical 5: Segment an image using k-means color clustering
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-image = cv2.imread("")
-image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-pixels = image_rgb.reshape((-1, 3))
-pixels = np.float32(pixels)
-K = 4
-criteria = (
-    cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER,
-    100,
-    0.2
-)
-compactness, labels, centers = cv2.kmeans(
-    pixels,
-    K,
-    None,
-    criteria,
-    10,
-    cv2.KMEANS_RANDOM_CENTERS
-)
-centers = np.uint8(centers)
-segmented_data = centers[labels.flatten()]
-segmented_image = segmented_data.reshape(image_rgb.shape)
-plt.figure(figsize=(10, 5))
-plt.subplot(1, 2, 1)
-plt.imshow(image_rgb)
-plt.title("Original Image")
-plt.axis("off")
-plt.subplot(1, 2, 2)
-plt.imshow(segmented_image)
-plt.title("K-Means Segmented Image")
-plt.axis("off")
-plt.show()
+------------------------------------------------------------
+23 | Using less and more
+a) Open /etc/services (or any large system file) using more and move forward page by page.b) Open the same file using less and scroll both forward and backward.c) Inside less, search for the word "http" and jump to the next match.d) Inside less, go directly to the beginning and end of the file.e) Write any two differences between less and more.
+Answer:
+a) more /etc/services (Press Spacebar to move forward)
+b) less /etc/services (Use Arrow keys or Page Up/Down)
+c) Type '/http' and press Enter. Press 'n' for the next match.
+d) Press 'g' for beginning. Press 'G' for end.
+e) 1. 'less' allows backward scrolling up the file, 'more' typically does not. 2. 'less' does not load the entire file into memory at startup, making it faster for large files.
+------------------------------------------------------------
+24 | Changing Permissions Using Numeric (Octal) Mode
+a) Write the numeric values of read, write and execute.b) Set permissions of report.txt to 755 and display the result.c) Set permissions of report.txt to 644 and display the result.d) Set permissions so that only the owner can read and write, and no one else has any access. Write the numeric value used.e) Convert the following to numeric form: rwxrw-r-- and r-xr-x---
+Answer:
+a) Read = 4, Write = 2, Execute = 1
+b) chmod 755 report.txt && ls -l report.txt
+c) chmod 644 report.txt && ls -l report.txt
+d) chmod 600 report.txt (Numeric value used: 600)
+e) rwxrw-r-- = 764
+   r-xr-x--- = 550
+------------------------------------------------------------
+25 | Directory Permissions
+a) Create a directory Secure with a file secret.txt inside it.b) Remove read permission from Secure for the owner and try to list its contents. Record the result.c) Restore read permission, then remove execute permission and try to cd into it. Record the result.d) Restore full permissions for the owner.e) Explain in your own words what read, write and execute mean for a directory.
+Answer:
+a) mkdir Secure && touch Secure/secret.txt
+b) chmod u-r Secure
+   ls Secure (Result: Permission denied)
+c) chmod u+r Secure && chmod u-x Secure
+   cd Secure (Result: Permission denied)
+d) chmod u+rwx Secure
+e) Read: View the list of files in the directory. Write: Create, delete, or rename files within the directory. Execute: Enter the directory (cd) and access files inside it.
+------------------------------------------------------------
+26 | Create a file employees.txt with the following content (using cat, nano or vim): 
+[Format: EmpID, Name, Department, City, Salary]
+101,Ravi,Sales,Mumbai,45000 
+102,Priya,HR,Pune,38000 
+103,Amit,Sales,Delhi,52000 
+104,Sneha,IT,Mumbai,61000 
+105,Rahul,IT,Pune,58000 
+106,Neha,HR,Mumbai,40000 
+107,Karan,Sales,Mumbai,47000 
+108,Pooja,IT,Delhi,63000 
+109,Vikas,Accounts,Pune,42000 
+110,Anjali,Accounts,Mumbai,44000
+Counting with wc
+a) Display the number of lines, words and characters in employees.txt.b) Display only the number of lines.c) Display only the number of characters.d) Count how many employees work in Mumbai using grep and wc with a pipe.e) Count how many employees are not in the Sales department using a pipe.
+Answer:
+a) wc employees.txt
+b) wc -l employees.txt
+c) wc -c employees.txt
+d) grep "Mumbai" employees.txt | wc -l
+e) grep -v "Sales" employees.txt | wc -l
+------------------------------------------------------------
+27 | Creating Users with Options
+a) Create a user meera with a home directory, using the appropriate option.b) Verify that the home directory /home/meera exists.c) Create a user arjun with the comment (full name) "Arjun Mehta".d) Create a user kavya with /bin/bash as the login shell.e) Display the /etc/passwd entries of all three users and point out the effect of each option used.
+Answer:
+a) sudo useradd -m meera
+b) ls -ld /home/meera
+c) sudo useradd -c "Arjun Mehta" arjun
+d) sudo useradd -s /bin/bash kavya
+e) grep -E "meera|arjun|kavya" /etc/passwd
+   Effect -> -m generated the /home/meera directory. -c placed "Arjun Mehta" in the comment field. -s set "/bin/bash" as Kavya's default shell.
+------------------------------------------------------------
+28 | Adding Users to Groups
+a) Create two users, aman and riya, with home directories.b) Add aman to the students group as a secondary group.c) Add riya to both students and teachers as secondary groups using a single command.d) Verify the group membership of both users using id.e) Display the /etc/group entries for students and teachers and identify the members listed.
+Answer:
+a) sudo useradd -m aman && sudo useradd -m riya
+b) sudo usermod -aG students aman
+c) sudo usermod -aG students,teachers riya
+d) id aman
+   id riya
+e) grep -E "students|teachers" /etc/group (Usernames will be listed at the end of the line)
+------------------------------------------------------------
 
-Practical 6: Implement optical flow on a video clip with Lucas Kanade
-import cv2
-import numpy as np
-cap=cv2.VideoCapture(r"")
-ret, old_frame=cap.read()
-if not ret:
-    print("cannot open video")
-    exit()
-old_gray=cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
-old_points=cv2.goodFeaturesToTrack(
-    old_gray,
-    maxCorners=100,
-    qualityLevel=0.3,
-    minDistance=7,
-    blockSize=7
-)
-lk_params=dict(
-    winSize=(15,15),
-    maxLevel=2,
-    criteria=(
-        cv2.TERM_CRITERIA_EPS +
-        cv2.TERM_CRITERIA_COUNT,
-        10,
-        0.03
-    )
-)
-mask=np.zeros_like(old_frame)
-while True:
-    ret, frame=cap.read()
-    if not ret:
-        break
-    frame_gray=cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    new_points, status, error = cv2.calcOpticalFlowPyrLK(
-        old_gray,
-        frame_gray,
-        old_points,
-        None,
-        **lk_params
-    )
-    if new_points is not None:
-        good_new=new_points[status == 1]
-        good_old=old_points[status == 1]
-        for new, old in zip(good_new, good_old):
-            x_new, y_new = new.ravel()
-            x_old, y_old=old.ravel()
-            mask=cv2.line(
-                mask,
-                (int(x_new),int(y_new)),
-                (int(x_old),int(y_old)),
-                (0,255,0),
-                2
-            )
-            frame=cv2.circle(
-                frame,
-                (int(x_new),int(y_new)),
-                5,
-                (0,0,255),
-                -1
-            )
-        output=cv2.add(frame,mask)
-        cv2.imshow("Lucas-Kanade Optical flow",output)
-        old_gray=frame_gray.copy()
-        old_points=good_new.reshape(-1,1,2)
-    if cv2.waitKey(30) & 0xFF== 27:
-        break
-cap.release()
-cv2.destroyAllWindows()
+32 | Complete Scenario
+a) Start three background processes: sleep 1000, sleep 1100 and sleep 1200.b) List them using jobs -l and also locate them using ps with grep.c) Bring the second job to the foreground, suspend it, then send it back to the background.d) Find the PID of sleep 1100 using pgrep and terminate it using kill.e) Terminate all remaining sleep processes using a single command and verify that no jobs remain.
+Answer:
+a) sleep 1000 &
+   sleep 1100 &
+   sleep 1200 &
+b) jobs -l
+   ps -ef | grep sleep
+c) fg %2
+   Ctrl+Z
+   bg %2
+d) pgrep -f "sleep 1100"
+   kill <PID>
+e) pkill sleep
+   jobs
+------------------------------------------------------------
+33 | Installing Packages
+a) Install the package tree using apt.b) Verify the installation by running tree on your home directory.c) Install figlet and cowsay using a single command.d) Run both programs: display your name using figlet, and display a message using cowsay.e) Install the package sl using apt-get with the option that skips the confirmation prompt.
+Answer:
+a) sudo apt install tree
+b) tree ~
+c) sudo apt install figlet cowsay
+d) figlet "My Name"
+   cowsay "Hello"
+e) sudo apt-get install -y sl
+------------------------------------------------------------
+34 | A new lab machine needs to be set up:
+a) Update the package index and upgrade the system in a single line using &&.b) Install tree, htop and figlet in a single command without a confirmation prompt.c) Verify all three installations by displaying their versions or running them.d) Remove figlet and htop, then clean up unused dependencies.e) Clear the downloaded package cache using apt clean and explain its purpose.
+Answer:
+a) sudo apt update && sudo apt upgrade -y
+b) sudo apt install -y tree htop figlet
+c) tree --version
+   htop --version
+   figlet -v
+d) sudo apt remove --purge figlet htop
+   sudo apt autoremove
+e) sudo apt clean
+   Purpose: Clears out the local cache of downloaded package files (.deb) to free up disk space.
+------------------------------------------------------------
+35 | Understanding crontab and the cron Service
+a) Check whether the cron service is running using systemctl.b) Display the current user's crontab entries.c) Write the five time fields of a crontab entry in order and the allowed range of values for each.d) Write the meaning of the following crontab schedules:
+* * * * *
+30 2 * * *
+0 9 * * 1
+*/5 * * * *
+Answer:
+a) systemctl status cron
+b) crontab -l
+c) Minute (0-59), Hour (0-23), Day of Month (1-31), Month (1-12), Day of Week (0-7, where 0 and 7 are Sunday).
+d) * * * * * : Every minute.
+   30 2 * * * : Every day at 2:30 AM.
+   0 9 * * 1 : Every Monday at 9:00 AM.
+   */5 * * * * : Every 5 minutes.
+------------------------------------------------------------
+36 | Verifying Execution with journalctl
+a) Display all logs of the cron service using journalctl.b) Display only the cron logs from today.c) Display cron logs from the last 10 minutes.d) Display cron logs live (follow mode) and observe the next scheduled run of backup.sh.e) Filter the cron logs to show only the lines related to backup.sh using a pipe with grep.
+Answer:
+a) sudo journalctl -u cron
+b) sudo journalctl -u cron --since today
+c) sudo journalctl -u cron --since "10 minutes ago"
+d) sudo journalctl -u cron -f
+e) sudo journalctl -u cron | grep "backup.sh"
+------------------------------------------------------------
 
-Practical 8: Apply affine and perspective transforms to correct a document scan
-import cv2
-import numpy as np
-image = cv2.imread(
-    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\Document.jpg"
-)
-if image is None:
-    print("Image not found!")
-    exit()
-pts1 = np.float32([
-    [100, 100],
-    [500, 100],
-    [100, 600]
-])
-pts2 = np.float32([
-    [80, 120],
-    [500, 100],
-    [120, 600]
-])
-M = cv2.getAffineTransform(pts1, pts2)
-affine = cv2.warpAffine(
-    image,
-    M,
-    (image.shape[1], image.shape[0])
-)
-src = np.float32([
-    [100, 80],
-    [550, 100],
-    [600, 650],
-    [80, 620]
-])
-dst = np.float32([
-    [0, 0],
-    [500, 0],
-    [500, 700],
-    [0, 700]
-])
-P = cv2.getPerspectiveTransform(src, dst)
-perspective = cv2.warpPerspective(
-    image,
-    P,
-    (500, 700)
-)
-cv2.imshow("Original Document", image)
-cv2.imshow("Affine Transformation", affine)
-cv2.imshow("Perspective Correction", perspective)
-cv2.imwrite("affine_document.jpg", affine)
-cv2.imwrite("corrected_document.jpg", perspective)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-Practical 9: Build a simple object detector using template matching
-import cv2
-image = cv2.imread(
-    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\Main Image.png"
-)
-template = cv2.imread(
-    r"C:\Users\admin\OneDrive\Desktop\BSCAI-Practicals\template.jpg"
-)
-if image is None:
-    print("Main image not found!")
-    exit()
-if template is None:
-    print("Template image not found!")
-    exit()
-h, w = template.shape[:2]
-result = cv2.matchTemplate(
-    image,
-    template,
-    cv2.TM_CCOEFF_NORMED
-)
-min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-threshold = 0.60
-if max_val >= threshold:
-    top_left = max_loc
-    bottom_right = (
-        top_left[0] + w,
-        top_left[1] + h
-    )
-    cv2.rectangle(
-        image,
-        top_left,
-        bottom_right,
-        (0, 255, 0),
-        2
-    )
-    print("Object detected!")
-    print("Matching score:", max_val)
-else:
-    print("Object not detected!")
-    print("Best matching score:", max_val)
-cv2.imshow("Object Detection", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-Practical Extra 1: Perform image resizing, cropping, rotation and flipping using opencv
-import cv2
-import matplotlib.pyplot as plt
-img = cv2.imread("image.jpg")
-h, w = img.shape[:2]
-resized = cv2.resize(img, (200, 200))
-cropped = img[h//4:3*h//4, w//4:3*w//4]
-rotated = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-flipped = cv2.flip(img, 1)
-names = ["Original", "Resized", "Cropped", "Rotated", "Flipped"]
-for i, im in enumerate([img, resized, cropped, rotated, flipped]):
-    plt.subplot(2, 3, i+1); plt.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB)); plt.title(names[i])
-plt.show()
-
-Practical Extra 2: Apply Gaussian blur and sharpening filters to enhance an image
-import cv2, numpy as np
-import matplotlib.pyplot as plt
-img = cv2.imread("image.jpg")
-blur = cv2.GaussianBlur(img, (7,7), 0)
-kernel = np.array([[0,-1,0], [-1,5,-1], [0,-1,0]])
-sharp = cv2.filter2D(img, -1, kernel)
-names = ["Original", "Gaussian Blur", "Sharpened"]
-for i, im in enumerate([img, blur, sharp]):
-    plt.subplot(1, 3, i+1); plt.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB)); plt.title(names[i])
-plt.show()
-
-Practical Extra 3: Perform image segmentation using thresholding and morphological operations
-import cv2, numpy as np
-import matplotlib.pyplot as plt
-gray = cv2.imread("image.jpg", 0)
-_, th = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-k = np.ones((5,5), np.uint8)
-erosion = cv2.erode(th, k)
-dilation = cv2.dilate(th, k)
-opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, k)
-closing = cv2.morphologyEx(th, cv2.MORPH_CLOSE, k)
-names = ["Original", "Threshold", "Erosion", "Dilation", "Opening", "Closing"]
-for i, im in enumerate([gray, th, erosion, dilation, opening, closing]):
-    plt.subplot(2, 3, i+1); plt.imshow(im, cmap="gray"); plt.title(names[i])
-plt.show()
-
-Practical Extra 4: Detect and Match image features using ORB and BFMatcher
-import cv2
-import matplotlib.pyplot as plt
-img1 = cv2.imread("image1.jpg")
-img2 = cv2.imread("image2.jpg")
-orb = cv2.ORB_create()
-k1, d1 = orb.detectAndCompute(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY), None)
-k2, d2 = orb.detectAndCompute(cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY), None)
-bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-m = sorted(bf.match(d1, d2), key=lambda x: x.distance)
-res = cv2.drawMatches(img1, k1, img2, k2, m[:50], None)
-plt.imshow(cv2.cvtColor(res, cv2.COLOR_BGR2RGB)); plt.title("ORB + BFMatcher"); plt.axis("off")
-plt.show()
-
-Practical Extra 5: Implement image stitching using feature matching and homography
-import cv2, numpy as np
-import matplotlib.pyplot as plt
-img1 = cv2.imread("left.jpg")
-img2 = cv2.imread("right.jpg")
-sift = cv2.SIFT_create()
-k1, d1 = sift.detectAndCompute(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY), None)
-k2, d2 = sift.detectAndCompute(cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY), None)
-matches = cv2.BFMatcher().knnMatch(d1, d2, k=2)
-good = [m for m, n in matches if m.distance < 0.75 * n.distance]
-src = np.float32([k2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
-dst = np.float32([k1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
-H, _ = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
-result = cv2.warpPerspective(img2, H, (img1.shape[1] + img2.shape[1], img1.shape[0]))
-result[0:img1.shape[0], 0:img1.shape[1]] = img1
-plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB)); plt.title("Stitched Image"); plt.axis("off")
-plt.show()
 </pre>
 </body>
 </html>
